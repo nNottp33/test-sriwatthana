@@ -78,7 +78,92 @@
 
     <!-- modal section-->
 
+    <!-- modal booking -->
+    <div class="modal fade clear-modal" id="bookingModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">กรอกรายละเอียดการจอง</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="fa-solid fa-user-large"></i>
+                        </span>
+                        <input id="booker" type="text" class="form-control" placeholder="ชื่อผู้จอง"
+                            aria-label="ชื่อผู้จอง" aria-describedby="ชื่อผู้จอง">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                    <button id="saveBooking" type="button" class="btn btn-primary">บันทึกข้อมูลการจอง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal booking end -->
 
+    <!-- modal show Booked -->
+    <div class="modal fade clear-modal" id="showBookingModal" tabindex="-1" aria-labelledby="showBookingModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showBookingModalLabel">รายการจอง</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="section-table">
+                        <table id="bookedTable" class="table caption-top table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">ผู้จอง</th>
+                                    <th scope="col">จองเมื่อ</th>
+                                    <th scope="col">จัดการข้อมูล</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal show Booked end -->
+
+    <!-- modal edit -->
+    <div class="modal fade clear-modal" id="editBookingModal" tabindex="-1" aria-labelledby="editBookingModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBookingModalLabel">แก้ไขรายการ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">
+                            <i class="fa-solid fa-user-large"></i>
+                        </span>
+                        <input id="newBooker" type="text" class="form-control" placeholder="ชื่อผู้จอง"
+                            aria-label="ชื่อผู้จอง" aria-describedby="ชื่อผู้จอง">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+                    <button id="editBooking" type="button" class="btn btn-primary">แก้ไข</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal edit end -->
 
     <!-- end modal section -->
 
@@ -112,8 +197,7 @@
         $(document).ready(function() {
             var table = $("#myTable").dataTable({
                 "processing": true,
-                "stateSave": true,
-                "searching": true,
+                "paging": false,
                 "responsive": true,
                 "bDestroy": true,
                 "ajax": "<?= base_url('/room/list')?>",
@@ -124,8 +208,7 @@
                         searchable: true,
                         orderable: true,
                         render: function(data, type, full, meta) {
-                            console.log(data);
-                            return `<input type="checkbox" onclick="getWeb()" id="check_${data.id}" class="check" name="check" value="${data.id}">`;
+                            return `<input type="checkbox" onclick="" id="check_${data.id}" class="check" name="check" value="${data.id}">`;
                         },
                     },
                     {
@@ -134,24 +217,31 @@
                     },
                     {
                         "data": "roomCapacity",
-                        "className": 'text-center'
+                        "className": 'text-center',
                     },
                     {
-                        "data": "null",
-                        "className": "text-center",
+                        data: null,
+                        className: "text-center",
                         render: function(data, type, full, meta) {
-
+                            if (data.status == 0) {
+                                return `<label> ${data.total} / ${data.roomCapacity} <span class="badge bg-warning text-dark">ว่าง</span> </label> `;
+                            } else {
+                                return `<span class="badge bg-danger">เต็ม</span>`;
+                            }
                         },
                     },
                     {
                         data: null,
                         className: "text-center",
                         render: function(data, type, full, meta) {
-                            if (data.status == 1) {
-                                return `<a href="#" onclick="onoffStatus('off', ${data.id})" id="onoff" class="active"><i class="fa fa-check text-success text-active"></i></a>`;
-                            } else {
-                                return `<a href="#" id="onoff" onclick="onoffStatus('on', ${data.id})"><i class="fa fa-times text-danger text"></i></a>`;
-                            }
+                            return `<div class="row m-auto justify-content-center"> 
+                                        <div class="col-6 col-sm-6"> 
+                                            <a href="#" onclick="booking('${data.id}')" class="btn btn-sm btn-info">จอง</a> 
+                                        </div> 
+                                        <div class="col-6 col-sm-6"> 
+                                             <a href="#" onclick="showBooking('${data.id}')" class="btn btn-sm btn-primary"><i class="fa-solid fa-list"></i></a> 
+                                        </div> 
+                                    </div>`;
                         },
                     },
 
@@ -174,6 +264,163 @@
             });
 
         });
+
+
+        const booking = (id) => {
+            $('#bookingModal').modal('show');
+            $('#editBooking').click(function() {
+                $.ajax({
+                    url: "<?= base_url('/booking') ?>",
+                    type: "POST",
+                    data: {
+                        id: id,
+                        booker: $('#newBooker').val(),
+                    },
+                    success: function(response) {
+                        if (response.status == '200') {
+                            toastr.success(response.message, response.title);
+                            $("#myTable").DataTable().ajax.reload();
+                            $('#bookingModal').modal('hide');
+                        } else {
+                            toastr.error(response.message, response.title);
+                        }
+                    },
+                    error: function(err) {
+                        toastr.error('เกิดเหตุขัดข้อง', 'ผิดพลาด!');
+                    }
+                });
+            })
+        };
+
+
+        const showBooking = (id) => {
+            $('#showBookingModal').modal('show');
+            var table = $("#bookedTable").dataTable({
+                "processing": true,
+                "paging": false,
+                "responsive": true,
+                "bDestroy": true,
+                "ajax": {
+                    "url": "<?= base_url('/booked') ?>",
+                    "type": "POST",
+                    "data": {
+                        id: id,
+                    },
+                },
+                "columns": [{
+                        targets: 0,
+                        data: null,
+                        className: 'text-center',
+                        searchable: true,
+                        orderable: true,
+                        render: function(data, type, full, meta) {
+                            return `<input type="checkbox" onclick="" id="check_${data.id}" class="check" name="check" value="${data.id}">`;
+                        },
+                    },
+                    {
+                        "data": "booker",
+                        "className": 'text-center',
+                    },
+                    {
+                        data: null,
+                        className: "text-center",
+                        render: function(data, type, full, meta) {
+                            return moment.unix(data.createAt).format("DD/MM/YYYY HH:mm");;
+                        },
+                    },
+                    {
+                        data: null,
+                        className: "text-center",
+                        render: function(data, type, full, meta) {
+                            return `<div class="row"> 
+                                        <div class="col-6 col-sm-6">
+                                            <a href="#" onclick="editBooking('${data.id}')" class="btn btn-sm btn-warning">แก้ไข</a>
+                                        </div> 
+                                         <div class="col-6 col-sm-6">
+                                             <a href="#" onclick="deleteBooking('${data.id}')" class="btn btn-sm btn-danger">ลบ</a>
+                                        </div>
+                                    </div>`;
+                        },
+                    },
+
+
+                ],
+
+            });
+        };
+
+        const editBooking = (id) => {
+            $.ajax({
+                url: "<?= base_url('/booked/bookername')?>",
+                type: "POST",
+                data: {
+                    id: id
+                },
+                success: function(data) {
+                    if (data.status == 200) {
+
+                        $('#newBooker').val(data.data);
+                        $('#editBookingModal').modal('show');
+
+                        $('#editBooking').click(function() {
+                            $.ajax({
+                                url: "<?= base_url('/booked/edit') ?>",
+                                type: "POST",
+                                data: {
+                                    id: id,
+                                    booker: $('#newBooker').val(),
+                                },
+                                success: function(response) {
+                                    if (response.status == '200') {
+                                        toastr.success(response.message, response
+                                            .title);
+                                        $("#bookedTable").DataTable().ajax.reload();
+                                        $('#editBookingModal').modal('hide');
+                                    } else {
+                                        toastr.error(response.message, response
+                                            .title);
+                                    }
+                                },
+                                error: function(err) {
+                                    toastr.error('เกิดเหตุขัดข้อง', 'ผิดพลาด!');
+                                }
+                            });
+                        })
+                    } else {
+                        toastr.error(data.message);
+                    }
+                },
+                error: function(data) {
+                    toastr.error(data.message);
+                }
+            });
+        };
+
+        const deleteBooking = (id) => {
+            let text = "คุณต้องการลบรายการจองนี้ใช่หรือไม่?";
+            if (confirm(text) == true) {
+                $.ajax({
+                    url: "<?= base_url('/booked/delete') ?>",
+                    type: "POST",
+                    data: {
+                        id: id,
+                    },
+                    success: function(response) {
+                        if (response.status == '200') {
+                            toastr.success(response.message, response.title);
+                            $("#bookedTable").DataTable().ajax.reload();
+                        } else {
+                            toastr.error(response.message, response.title);
+                        }
+                    },
+                    error: function(err) {
+                        toastr.error('เกิดเหตุขัดข้อง', 'ผิดพลาด!');
+                    }
+                });
+            } else {
+                return false;
+            }
+        };
     </script>
     <!-- end ajax/js function -->
 

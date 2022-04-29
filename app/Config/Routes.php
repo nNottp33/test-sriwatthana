@@ -29,10 +29,17 @@ $routes->setAutoRoute(true);
  * --------------------------------------------------------------------
  */
 
-// We get a performance increase by specifying the default
-// route since we don't have to scan directories.
-$routes->get('/', 'Home::index');
-$routes->get('/room/list', 'Home::getRoomList');
+$routes->group('', function ($routes) {
+    $routes->get('/', 'Home::index');
+    $routes->get('/room/list', 'Home::getRoomList');
+    $routes->post('/booking', 'Home::appointRoom');
+    $routes->post('/booked', 'Home::getBookedList');
+    $routes->post('/booked/bookername', 'Home::getBookerName');
+    $routes->post('/booked/edit', 'Home::editBooked');
+    $routes->post('/booked/delete', 'Home::deleteBooked');
+});
+
+
 
 /*
  * --------------------------------------------------------------------

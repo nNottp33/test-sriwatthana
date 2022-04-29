@@ -6,5 +6,5 @@ use CodeIgniter\Model;
 class AppointModel extends Model
 {
     protected $table = 'appoint';
-    protected $allowedFields = ['id', 'roomId', 'booker'];
+    protected $allowedFields = ['id', 'roomId', 'booker', 'createAt'];
 }
